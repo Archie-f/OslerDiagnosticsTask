@@ -8,6 +8,13 @@ import java.util.*;
 
 public class OslerUtils {
 
+    /**
+     * Creates Analysis File comparing the downloaded+existing lists and existing_device_updated_list
+     *
+     * @param oldList
+     * @param newList
+     * @param path
+     */
     public static void createAnalysisFile(List<String[]> oldList, List<String[]> newList, String path) throws IOException {
 
         FileWriter writer = new FileWriter(path);
@@ -40,31 +47,12 @@ public class OslerUtils {
 
     }
 
-    public static void check(List<String[]> oldList, List<String[]> newList) {
-
-        Map<String, String[]> oldMap = new HashMap<>();
-        oldList.stream().forEach(arr -> oldMap.put(arr[0], new String[] {arr[2],arr[3]}));
-
-        Map<String, String[]> newMap = new HashMap<>();
-        newList.stream().forEach(arr -> newMap.put(arr[0], arr[2].split("\t")));
-
-        int count = 1;
-        for(java.util.Map.Entry<String, String[]> oldItem : oldMap.entrySet()) {
-
-            if(newMap.containsKey(oldItem.getKey())) {
-                String[] newItemsArray = newMap.get(oldItem.getKey());
-                if(Arrays.equals(oldItem.getValue(), newItemsArray)) {
-                    System.out.println(count + " " + "CORRECT" + " " + oldItem.getKey() + " " +  Arrays.toString(oldItem.getValue()) + " " +  Arrays.toString(newItemsArray));
-                    count++;
-                }else {
-                    System.out.println(count + " " + "ERROR" + " " + oldItem.getKey());
-                    count++;
-                }
-            }
-        }
-
-    }
-
+    /**
+     * Resolves the hexadecimal code in the list and returns the list wit corresponding status codes
+     *
+     * @param list
+     * @return list
+     */
     public static List<String[]> resolveHex(List<String[]> list) {
 
         for(String[] array : list) {
@@ -78,6 +66,12 @@ public class OslerUtils {
         return list;
     }
 
+    /**
+     * Removes the duplicated userIDs in the llist and accepts the last one in the list as the correct item
+     *
+     * @param list
+     * @return lastList
+     */
     public static List<String[]> singularUsers(List<String[]> list) {
 
         List<String[]>  lastList = new ArrayList<>();
@@ -92,6 +86,12 @@ public class OslerUtils {
         return lastList;
     }
 
+    /**
+     * Reads the .txt file in the given path and returns as a List of String Array
+     *
+     * @param filePath
+     * @return fileList
+     */
     public static List<String[]> readFile(String filePath) throws FileNotFoundException {
 
         File file = new File(filePath);
@@ -108,6 +108,13 @@ public class OslerUtils {
         return fileList;
     }
 
+    /**
+     * Selects the data that belongs to the Device of which th ID number is given as parameter
+     *
+     * @param fileList
+     * @param deviceID
+     * @return deviceDataList
+     */
     public static List<String[]> getDeviceDataList(List<String[]> fileList, String deviceID) {
 
         List<String[]>  deviceDataList = new ArrayList<>();
@@ -121,6 +128,13 @@ public class OslerUtils {
         return deviceDataList;
     }
 
+    /**
+     * Creates an updated list using existing_device_list and downloaded_device_list
+     *
+     * @param existingDeviceList
+     * @param downloadedDeviceList
+     * @return updatedList
+     */
     public static List<String[]> createUpdatedList(List<String[]> existingDeviceList, List<String[]> downloadedDeviceList) {
 
         List<String[]>  updatedList = new ArrayList<>();
@@ -135,8 +149,14 @@ public class OslerUtils {
         return updatedList;
     }
 
+    /**
+     * Converts the given hexadecimal code into binary code and returns the binary code
+     *
+     * @param hex
+     * @return binary
+     */
     public static String hexToBin(String hex){
-        String bin = "";
+        String binary = "";
         String binFragment = "";
         int iHex;
         hex = hex.trim();
@@ -149,11 +169,18 @@ public class OslerUtils {
             while(binFragment.length() < 4){
                 binFragment = "0" + binFragment;
             }
-            bin += binFragment;
+            binary += binFragment;
         }
-        return bin;
+        return binary;
     }
 
+    /**
+     * Receives one row of a list as an array. Converts the hex using hexToBin and resolves the binary code.
+     * Returns the appropriate status expressions using the binary code
+     *
+     * @param array
+     * @return statMap
+     */
     public static Map<String,String> checkStatus(String[] array) {
         Map<String,String> statMap = new HashMap<>();
 
@@ -185,7 +212,6 @@ public class OslerUtils {
         }
 
         statMap.put("Administration", adminStat);
-
 
         return statMap;
     }
