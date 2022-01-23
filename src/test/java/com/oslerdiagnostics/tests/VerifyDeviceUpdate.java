@@ -11,10 +11,10 @@ import static com.oslerdiagnostics.utilities.OslerUtils.*;
 
 public class VerifyDeviceUpdate {
 
-    String portalUsersPath = "/Users/archie/Documents/JOB/Test Engineer Mini-Project/PortalUserList.txt";
-    String deviceUsersPath = "/Users/archie/Documents/JOB/Test Engineer Mini-Project/DeviceUserList.txt";
-    String updatedUsersList = "/Users/archie/Documents/JOB/Test Engineer Mini-Project/DeviceUserList_updated.txt";
-    String analysisFilePath = "/Users/archie/Documents/JOB/Test Engineer Mini-Project/Analysis.txt";
+    String portalUsersPath = "src/test/resources/PortalUserList.txt";
+    String deviceUsersPath = "src/test/resources/DeviceUserList.txt";
+    String updatedUsersList = "src/test/resources/DeviceUserList_updated.txt";
+    String analysisFilePath = "src/test/resources/Analysis.txt";
     String deviceID = "47057";
 
     @Test
