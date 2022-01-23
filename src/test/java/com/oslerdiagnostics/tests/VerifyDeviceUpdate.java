@@ -2,9 +2,7 @@ package com.oslerdiagnostics.tests;
 
 import org.testng.annotations.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.oslerdiagnostics.utilities.OslerUtils.*;
