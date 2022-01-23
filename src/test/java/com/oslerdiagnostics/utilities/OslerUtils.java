@@ -25,7 +25,6 @@ public class OslerUtils {
         Map<String, String[]> newMap = new HashMap<>();
         newList.stream().forEach(arr -> newMap.put(arr[0], new String[] {arr[1],arr[2].split("\t")[0],arr[2].split("\t")[1]}));
 
-        int count = 1;
         for(java.util.Map.Entry<String, String[]> oldItem : oldMap.entrySet()) {
 
             if(newMap.containsKey(oldItem.getKey())) {
@@ -33,12 +32,8 @@ public class OslerUtils {
                 writer.write(oldItem.getKey() + "\t" + oldItem.getValue()[0] + "\t" + oldItem.getValue()[1] + "\t" + oldItem.getValue()[2]);
                 if(Arrays.equals(oldItem.getValue(), newItemsArray)) {
                     writer.write("\t" + "\t" + "\t" + "CORRECT");
-                    System.out.println(count + " " + "CORRECT" + " " + oldItem.getKey() + " " +  Arrays.toString(oldItem.getValue()) + " " +  Arrays.toString(newItemsArray));
-                    count++;
                 }else {
                     writer.write("\t" + "\t" + "\t" + "ERROR");
-                    System.out.println(count + " " + "ERROR" + " " + oldItem.getKey());
-                    count++;
                 }
             }
             writer.write("\n");

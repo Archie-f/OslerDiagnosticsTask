@@ -30,12 +30,7 @@ public class VerifyDeviceUpdate {
         List<String[]> updatedDeviceList = createUpdatedList(deviceUserList, portalUsersList);
         updatedDeviceList = resolveHex(updatedDeviceList);
 
-        updatedDeviceList.stream().forEach(l-> System.out.print(Arrays.toString(l)));
-        System.out.println();
-
         List<String[]> deviceUpdatedList = readFile(updatedUsersList);
-        deviceUpdatedList.stream().forEach(l-> System.out.print(Arrays.toString(l)));
-        System.out.println();
 
         createAnalysisFile(deviceUpdatedList, updatedDeviceList, analysisFilePath);
 
