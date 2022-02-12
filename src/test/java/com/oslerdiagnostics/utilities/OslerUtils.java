@@ -1,139 +1,75 @@
 package com.oslerdiagnostics.utilities;
 
-import java.io.*;
+import com.oslerdiagnostics.base.User;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class OslerUtils {
 
-    /**
-     * Creates Analysis File comparing the downloaded+existing lists and existing_device_updated_list
-     *
-     * @param oldList
-     * @param newList
-     * @param path
-     */
-    public static void createAnalysisFile(List<String[]> oldList, List<String[]> newList, String path) throws IOException {
+    public static List<User> readFile(String path) throws FileNotFoundException {
 
-        FileWriter writer = new FileWriter(path);
 
-        Map<String, String[]> oldMap = new HashMap<>();
-        oldList.stream().forEach(arr -> oldMap.put(arr[0], new String[] {arr[1],arr[2],arr[3]}));
+        File file = new File(path);
 
-        Map<String, String[]> newMap = new HashMap<>();
-        newList.stream().forEach(arr -> newMap.put(arr[0], new String[] {arr[1],arr[2].split("\t")[0],arr[2].split("\t")[1]}));
-
-        for(java.util.Map.Entry<String, String[]> oldItem : oldMap.entrySet()) {
-
-            if(newMap.containsKey(oldItem.getKey())) {
-                String[] newItemsArray = newMap.get(oldItem.getKey());
-                writer.write(oldItem.getKey() + "\t" + oldItem.getValue()[0] + "\t" + oldItem.getValue()[1] + "\t" + oldItem.getValue()[2]);
-                if(Arrays.equals(oldItem.getValue(), newItemsArray)) {
-                    writer.write("\t" + "\t" + "\t" + "CORRECT");
-                }else {
-                    writer.write("\t" + "\t" + "\t" + "ERROR");
-                }
-            }
-            writer.write("\n");
-        }
-        writer.close();
-
-    }
-
-    /**
-     * Resolves the hexadecimal code in the list and returns the list wit corresponding status codes
-     *
-     * @param list
-     * @return list
-     */
-    public static List<String[]> resolveHex(List<String[]> list) {
-
-        for(String[] array : list) {
-
-            Map<String,String> status = new HashMap<>();
-
-            status = checkStatus(array);
-            array[2] = status.get("Authorization") + status.get("Administration") + "\t" + status.get("Training");
-        }
-
-        return list;
-    }
-
-    /**
-     * Removes the duplicated userIDs in the llist and accepts the last one in the list as the correct item
-     *
-     * @param list
-     * @return lastList
-     */
-    public static List<String[]> singularUsers(List<String[]> list) {
-
-        List<String[]>  lastList = new ArrayList<>();
-
-        for(String[] arr : list) {
-
-            lastList.removeIf(l -> l[0].equals(arr[0]));
-            lastList.add(arr);
-
-        }
-
-        return lastList;
-    }
-
-    /**
-     * Reads the .txt file in the given path and returns as a List of String Array
-     *
-     * @param filePath
-     * @return fileList
-     */
-    public static List<String[]> readFile(String filePath) throws FileNotFoundException {
-
-        File file = new File(filePath);
-
-        @SuppressWarnings("resource")
         Scanner scan = new Scanner(file);
-        List<String[]> fileList = new ArrayList<>();
+        List<User> userList = new ArrayList<>();
 
         while (scan.hasNextLine()) {
             String[] array = scan.nextLine().split("\t");
-            fileList.add(array);
-        }
+            //System.out.println(array[0] + " " + array[1] + " " + array[2]);
+            List<User> list = new ArrayList<>();
+            User user = new User();
+            user.setUserID(array[0]);
+            user.setDeviceID(array[1]);
+            if(array.length<4){
+                user.setHexCode(array[2]);
+            }else {
+                user.setStatus(array[2] + "\t" + array[3]);
+            }
 
-        return fileList;
+
+
+            list.add(user);
+            userList.addAll(list);
+        }
+        return userList;
     }
 
-    /**
-     * Selects the data that belongs to the Device of which th ID number is given as parameter
-     *
-     * @param fileList
-     * @param deviceID
-     * @return deviceDataList
-     */
-    public static List<String[]> getDeviceDataList(List<String[]> fileList, String deviceID) {
+    public static List<User> getDeviceDataList(List<User> fileList, String deviceID){
 
-        List<String[]>  deviceDataList = new ArrayList<>();
+        List<User> deviceDataList = new ArrayList<>();
 
-        for(String[] arr : fileList) {
-            if(arr[1].equals(deviceID)) {
-                deviceDataList.add(arr);
+        for(User user : fileList){
+            if(user.getDeviceID().equals(deviceID)){
+                deviceDataList.add(user);
             }
         }
-
         return deviceDataList;
     }
 
-    /**
-     * Creates an updated list using existing_device_list and downloaded_device_list
-     *
-     * @param existingDeviceList
-     * @param downloadedDeviceList
-     * @return updatedList
-     */
-    public static List<String[]> createUpdatedList(List<String[]> existingDeviceList, List<String[]> downloadedDeviceList) {
+    public static List<User> singularUsers(List<User> list){
 
-        List<String[]>  updatedList = new ArrayList<>();
+        List<User>  lastList = new ArrayList<>();
 
-        for(String[] each : existingDeviceList) {
-            if(!downloadedDeviceList.stream().anyMatch(arr -> arr[0].equals(each[0]))) {
-                updatedList.add(each);
+        for (User user : list){
+            lastList.removeIf(l -> l.getUserID().equals(user.getUserID()));
+            lastList.add(user);
+        }
+        return lastList;
+    }
+
+    public static List<User> createUpdatedList(List<User> existingDeviceList, List<User> downloadedDeviceList){
+
+        List<User>  updatedList = new ArrayList<>();
+
+        for(User user : existingDeviceList){
+
+            if(downloadedDeviceList.stream().noneMatch(dUser -> dUser.getUserID().equals(user.getUserID()))){
+                updatedList.add(user);
             }
         }
         updatedList.addAll(downloadedDeviceList);
@@ -141,12 +77,6 @@ public class OslerUtils {
         return updatedList;
     }
 
-    /**
-     * Converts the given hexadecimal code into binary code and returns the binary code
-     *
-     * @param hex
-     * @return binary
-     */
     public static String hexToBin(String hex){
         String binary = "";
         String binFragment = "";
@@ -166,17 +96,10 @@ public class OslerUtils {
         return binary;
     }
 
-    /**
-     * Receives one row of a list as an array. Converts the hex using hexToBin and resolves the binary code.
-     * Returns the appropriate status expressions using the binary code
-     *
-     * @param array
-     * @return statMap
-     */
-    public static Map<String,String> checkStatus(String[] array) {
+    public static Map<String,String> checkStatus(User user) {
         Map<String,String> statMap = new HashMap<>();
 
-        String binar = hexToBin(array[2]);
+        String binar = hexToBin(user.getHexCode());
         String authorizationStat = "INVALID AUTHORIZATION STATUS DATA";
         String trainingStat = "INVALID TRAINING STATUS DATA";
         String adminStat = "INVALID ADMIN STATUS DATA";
@@ -208,5 +131,79 @@ public class OslerUtils {
         return statMap;
     }
 
+    public static List<User> resolveHex(List<User> list) {
+
+        for(User user : list) {
+
+            Map<String,String> status = checkStatus(user);
+            String stat= status.get("Authorization") + status.get("Administration") + "\t" + status.get("Training");
+            user.setStatus(stat);
+        }
+
+        return list;
+    }
+
+    public static void createAnalysisFile(List<User> oldList, List<User> newList, String path) throws IOException {
+
+        FileWriter writer = new FileWriter(path);
+
+        Map<String, User> oldMap = new HashMap<>();
+        oldList.stream().forEach(old -> oldMap.put(old.getUserID(),old));
+
+        Map<String, User> newMap = new HashMap<>();
+        newList.stream().forEach(neW -> newMap.put(neW.getUserID(),neW));
+
+        for(Map.Entry<String, User> oldItem : oldMap.entrySet()){
+
+            if(newMap.containsKey(oldItem.getKey())){
+                writer.write(oldItem.getKey() + "\t" + oldItem.getValue().getDeviceID()
+                        + "\t" + oldItem.getValue().getStatus() + "\t");
+                if(newMap.get(oldItem.getKey()).getDeviceID().equals(oldItem.getValue().getDeviceID())
+                        && newMap.get(oldItem.getKey()).getStatus().equals(oldItem.getValue().getStatus())){
+                    writer.write("\t" + "\t" + "\t" + "CORRECT");
+                }else {
+                    writer.write("\t" + "\t" + "\t" + "ERROR");
+                }
+            }
+            writer.write("\n");
+        }
+        writer.close();
+
+        compare(oldMap,newMap);
+    }
+
+    public static void createAnalysisAlternate(List<User> oldList, List<User> newList, String path) throws IOException {
+
+        FileWriter writer1 = new FileWriter(path);
+
+        for(User oldItem : oldList){
+            for(User newItem : newList){
+                if(oldItem.getUserID().equals(newItem.getUserID())){
+                    writer1.write(oldItem.getUserID() + "\t" + oldItem.getDeviceID()
+                            + "\t" + oldItem.getStatus());
+
+                    if(oldItem.getDeviceID().equals(newItem.getDeviceID()) &&
+                            oldItem.getStatus().equals(newItem.getStatus())){
+                        writer1.write("\t" + "\t" + "\t" + "CORRECT");
+                        //break;
+                    }else {
+                        writer1.write("\t" + "\t" + "\t" + "ERROR");
+                        //break;
+                    }
+                }
+            }
+            writer1.write("\n");
+        }
+        writer1.close();
+    }
+
+    public static void compare(Map<String, User> old, Map<String, User> neW){
+
+        System.out.println(old.get("78fc6a6d-1b2e-4077-b25d-ed252ba51d80").getDeviceID() +
+                " " + old.get("78fc6a6d-1b2e-4077-b25d-ed252ba51d80").getStatus());
+        System.out.println(neW.get("78fc6a6d-1b2e-4077-b25d-ed252ba51d80").getDeviceID() +
+                " " + neW.get("78fc6a6d-1b2e-4077-b25d-ed252ba51d80").getStatus());
+
+    }
 
 }
