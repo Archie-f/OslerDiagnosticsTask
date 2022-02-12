@@ -1,5 +1,6 @@
 package com.oslerdiagnostics.tests;
 
+import com.oslerdiagnostics.base.User;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -18,19 +19,20 @@ public class VerifyDeviceUpdate {
     @Test
     public void deviceTest() throws IOException {
 
-        List<String[]> portalUsersList = readFile(portalUsersPath);
+        List<User> portalUsersList = readFile(portalUsersPath);
         portalUsersList = getDeviceDataList(portalUsersList, deviceID);
         portalUsersList = singularUsers(portalUsersList);
 
-        List<String[]> deviceUserList = readFile(deviceUsersPath);
-        deviceUserList = singularUsers(deviceUserList);
+        List<User> deviceUsersList = readFile(deviceUsersPath);
+        deviceUsersList = singularUsers(deviceUsersList);
 
-        List<String[]> updatedDeviceList = createUpdatedList(deviceUserList, portalUsersList);
+        List<User> updatedDeviceList = createUpdatedList(deviceUsersList, portalUsersList);
         updatedDeviceList = resolveHex(updatedDeviceList);
 
-        List<String[]> deviceUpdatedList = readFile(updatedUsersList);
+        List<User> deviceUpdatedList = readFile(updatedUsersList);
 
         createAnalysisFile(deviceUpdatedList, updatedDeviceList, analysisFilePath);
+        //createAnalysisAlternate(deviceUpdatedList, updatedDeviceList, analysisFilePath);
 
     }
 
